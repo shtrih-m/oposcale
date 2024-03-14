@@ -78,3 +78,6 @@ INCLUDEPATH += $$PWD/libs/opoandroidsdk_v2.016.jar
 DEPENDPATH += $$PWD/libs/opoandroidsdk_v2.016.jar
 INCLUDEPATH += $$PWD/oposdk
 INCLUDEPATH += $$PWD/oposdk/cpp
+
+RESOURCES += \
+    resource.qrc

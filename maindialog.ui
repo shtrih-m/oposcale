@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>389</width>
-    <height>370</height>
+    <width>540</width>
+    <height>423</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>330</y>
+     <x>190</x>
+     <y>380</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -29,196 +29,351 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QLabel" name="lblDeviceName">
+  <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>20</y>
-     <width>81</width>
-     <height>16</height>
+     <y>10</y>
+     <width>521</width>
+     <height>361</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Scale device:</string>
+   <property name="currentIndex">
+    <number>1</number>
    </property>
-  </widget>
-  <widget class="QPushButton" name="btnOpen">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>20</y>
-     <width>101</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Open</string>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="default">
-    <bool>false</bool>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnClose">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>60</y>
-     <width>101</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Close</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnReadWeight">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>100</y>
-     <width>101</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Read weight</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnZero">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>140</y>
-     <width>101</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Zero</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnTare">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>180</y>
-     <width>101</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Tare</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnExitTare">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>260</y>
-     <width>101</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Exit tare</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblNetWeight">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>90</y>
-     <width>181</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Net weight: 0.000</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblTareWeight">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>120</y>
-     <width>181</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Tare weight: 0.000</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblGrossWeight">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>150</y>
-     <width>181</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Gross weight: 0.000</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="edtDeviceName">
-   <property name="geometry">
-    <rect>
-     <x>90</x>
-     <y>20</y>
-     <width>181</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>/dev/ttyS0</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnPreTare">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>220</y>
-     <width>101</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>PreTare</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblResult">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>50</y>
-     <width>81</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Result:</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="edtResult">
-   <property name="geometry">
-    <rect>
-     <x>90</x>
-     <y>50</y>
-     <width>181</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>Scale</string>
+    </attribute>
+    <widget class="QLabel" name="lblNetWeight">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>181</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Net weight: 0.000</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblDeviceName">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Scale device:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblResult">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Result:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnClose">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>60</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnExitTare">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>260</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Exit tare</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnTare">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>180</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Tare</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblGrossWeight">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>150</y>
+       <width>181</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Gross weight: 0.000</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblTareWeight">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>181</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Tare weight: 0.000</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="edtResult">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>50</y>
+       <width>301</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnReadWeight">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>100</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Read weight</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnPreTare">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>220</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>PreTare</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnZero">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>140</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Zero</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnOpen">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>20</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Open</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="edtDeviceName">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>20</y>
+       <width>301</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>/dev/ttyS0</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="edtTare">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>220</y>
+       <width>151</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="toolTipDuration">
+      <number>4</number>
+     </property>
+     <property name="text">
+      <string>123</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblTare">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>220</y>
+       <width>41</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Tare:</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <attribute name="title">
+     <string>Printer</string>
+    </attribute>
+    <widget class="QPushButton" name="btnPrinterOpen">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>10</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Open</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="edtPrinterResult">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>10</y>
+       <width>301</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblResult_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Result:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnPrinterClose">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>50</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnPrinterPrintLabel">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>130</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Print</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnPrinterGetStatus">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>90</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>GetStatus</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblResult_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>171</width>
+       <height>131</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>res/Globus.bmp</pixmap>
+     </property>
+    </widget>
+   </widget>
   </widget>
  </widget>
  <resources/>

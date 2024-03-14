@@ -25,12 +25,12 @@ private:
     jobject gcontext = nullptr;
     OnePlusOneAndroidSDK::ScalesOS::WeightInfo* weightInfo;
     OnePlusOneAndroidSDK::ScalesOS::ScalesSDK* sdk = nullptr;
+public:
+    explicit OpoScaleSDK(QObject *parent = nullptr);
 
     jobject getGlobalContext();
     jobject getFile(QString deviceName);
     OnePlusOneAndroidSDK::ScalesOS::ScalesSDK* getsdk();
-public:
-    explicit OpoScaleSDK(QObject *parent = nullptr);
 
     WeightData getWeight();
 

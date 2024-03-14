@@ -25,8 +25,48 @@ OnePlusOneAndroidSDK::ScalesOS::ScalesSDK* OpoScaleSDK::getsdk()
     return sdk;
 }
 
-QString OpoScaleSDK::getErrorMessage(int rc){
-    return QString::number(rc);
+QString OpoScaleSDK::getErrorMessage(int rc)
+{
+    QString result = "Unknown error";
+    switch(rc)
+    {
+        case 0:
+            result = "No error";
+            break;
+
+        case 32768:
+            result = "Command data not in legal range";
+            break;
+
+        case 33024:
+            result = "Unstable weight";
+            break;
+
+        case 33280:
+            result = "AD value overflow";
+            break;
+
+        case 33536:
+            result = "Currently in tare mode";
+            break;
+
+        case 33792:
+            result = "No power-on zero";
+            break;
+
+        case 34048:
+            result = "Currently in preset tare mode";
+            break;
+
+        case 34304:
+            result = "Anti-cheat is not turned on, cannot be set";
+            break;
+
+        case 65024:
+            result = "Erroneous command";
+            break;
+    }
+    return QString("%1, %2").arg(QString::number(rc), result);
 }
 
 bool OpoScaleSDK::isFailed(int rc){
@@ -155,7 +195,7 @@ int32_t OpoScaleSDK::Tare()
 
 int32_t OpoScaleSDK::PreTare(int32_t arg1)
 {
-    qDebug() << "OpoScaleSDK::PreTare";
+    qDebug() << "OpoScaleSDK::PreTare(" << arg1 << ")";
     int32_t rc = getsdk()->PreTare(arg1);
     qDebug() << "OpoScaleSDK::PreTare=" << rc;
     return rc;

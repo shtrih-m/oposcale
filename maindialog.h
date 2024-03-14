@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "oposcalesdk.h"
+#include "OnePlusOneAndroidSDK\Printer\label_printer.hpp"
 
 
 namespace Ui {
@@ -36,9 +37,20 @@ private slots:
 
     void weightChanged(const ::OnePlusOneAndroidSDK::ScalesOS::WeightInfo* weightInfo);
 
+    void on_btnPrinterOpen_clicked();
+
+    void on_btnPrinterClose_clicked();
+
+    void on_btnPrinterPrintLabel_clicked();
+
+    void on_btnPrinterGetStatus_clicked();
+
 private:
     OpoScaleSDK sdk;
+    ::OnePlusOneAndroidSDK::Printer::LabelPrinter* printer = nullptr;
+
     Ui::MainDialog *ui;
+    ::OnePlusOneAndroidSDK::Printer::LabelPrinter* getPrinter();
 };
 
 #endif // MAINDIALOG_H

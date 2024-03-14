@@ -4,9 +4,11 @@
 #include "weightdata.h"
 #include "OnePlusOneAndroidSDK\ScalesOS\weight_info.hpp"
 #include "OnePlusOneAndroidSDK\ScalesOS\scales_s_d_k.hpp"
+#include "OnePlusOneAndroidSDK\Printer\label_printer.hpp"
 
 using OnePlusOneAndroidSDK::ScalesOS::WeightInfo;
 using OnePlusOneAndroidSDK::ScalesOS::ScalesSDK;
+using OnePlusOneAndroidSDK::Printer::LabelPrinter;
 
 MainDialog::MainDialog(QWidget *parent)
     : QDialog(parent)
@@ -20,8 +22,13 @@ MainDialog::~MainDialog()
     delete ui;
 }
 
-void weightChanged2(const ::OnePlusOneAndroidSDK::ScalesOS::WeightInfo* weightInfo){
-
+::OnePlusOneAndroidSDK::Printer::LabelPrinter* MainDialog::getPrinter(){
+    if (printer == nullptr)
+    {
+        const android::content::Context context(sdk.getGlobalContext());
+        printer = &::OnePlusOneAndroidSDK::Printer::LabelPrinter::getInstance(context);
+    }
+    return printer;
 }
 
 
@@ -31,13 +38,6 @@ void MainDialog::on_btnOpen_clicked()
     QString deviceName = ui->edtDeviceName->text();
     if (sdk.Open(deviceName))
     {
-        /*
-        ::OnePlusOneAndroidSDK::ScalesOS::ScalesSDK::WeightChangedListener* listener;
-        listener = ::OnePlusOneAndroidSDK::ScalesOS::ScalesSDK::WeightChangedListener::ImplementInterface(&weightChanged2);
-        ::OnePlusOneAndroidSDK::ScalesOS::ScalesSDK::WeightChangedListener& listener2 = listener;
-        sdk.setWeightChangedListener(listener2);
-        */
-
         qDebug() << "File open succeeded";
         ui->edtResult->setText("OK");
     } else{
@@ -95,10 +95,10 @@ void MainDialog::on_btnOpen_pressed()
 void MainDialog::on_btnPreTare_clicked()
 {
     ui->edtResult->clear();
-    int rc = sdk.PreTare(0);
+    int32_t tare = ui->edtTare->text().toInt();
+    int rc = sdk.PreTare(tare);
     ui->edtResult->setText(sdk.getErrorMessage(rc));
 }
-
 
 void MainDialog::on_btnExitTare_clicked()
 {
@@ -106,3 +106,101 @@ void MainDialog::on_btnExitTare_clicked()
     int rc = sdk.ExitTare();
     ui->edtResult->setText(sdk.getErrorMessage(rc));
 }
+
+void MainDialog::on_btnPrinterOpen_clicked()
+{
+    ui->edtPrinterResult->clear();
+    if (getPrinter()->Open()){
+        qDebug() << "Printer open succeeded";
+        ui->edtPrinterResult->setText("OK");
+    } else{
+        qDebug() << "Printer open failed";
+        ui->edtPrinterResult->setText("Failed");
+    }
+}
+
+
+void MainDialog::on_btnPrinterClose_clicked()
+{
+    ui->edtPrinterResult->clear();
+    getPrinter()->Close();
+}
+
+jobject getBitmap(QString fileName)
+{
+    qDebug() << "getBitmap";
+    QJniEnvironment env;
+    jclass BitmapFactoryClass = env.jniEnv()->FindClass("android/graphics/BitmapFactory");
+    if (BitmapFactoryClass == nullptr){
+        qDebug() << "BitmapFactory class not found";
+        return nullptr;
+    }
+    jmethodID methodID = env.jniEnv()->GetStaticMethodID(BitmapFactoryClass, "decodeFile", "(Ljava/lang/String;)Landroid/graphics/Bitmap;");
+    if (methodID == nullptr){
+        qDebug() << "BitmapFactory method decodeFile not found";
+        return nullptr;
+    }
+    jobject bitmap = env.jniEnv()->CallStaticObjectMethod(BitmapFactoryClass, methodID,
+        QJniObject::fromString(fileName).object<jstring>());
+}
+
+void MainDialog::on_btnPrinterPrintLabel_clicked()
+{
+    ui->edtPrinterResult->clear();
+    QString fileName = "";
+    jobject jbitmap = getBitmap(fileName);
+    ::android::graphics::Bitmap bitmap(jbitmap);
+    getPrinter()->PrintLabelBitmap(bitmap);
+}
+
+QString getStatusText(int status)
+{
+    QString result = "Unknown status";
+    switch (status) {
+        case 0:
+            result = "Printer OK";
+            break;
+
+        case 1:
+            result = "Printer is out of paper";
+            break;
+
+        case 2:
+            result = "Printer did not pick up paper";
+            break;
+
+        case 3:
+            result = "Printer open";
+            break;
+
+        case 4:
+            result = "Printer high temperature";
+            break;
+
+        case 5:
+            result = "Printer positioning exception";
+            break;
+
+        case 6:
+            result = "Printer busy";
+            break;
+
+        case 7:
+            result = "Printer unknown exception";
+            break;
+
+        case 8:
+            result = "Writing error, abnormal cover opening";
+            break;
+        }
+    return QString("%1, %2").arg(QString::number(status), result);
+}
+
+void MainDialog::on_btnPrinterGetStatus_clicked()
+{
+    ui->edtPrinterResult->clear();
+    int32_t status = getPrinter()->GetStatus();
+    QString text = getStatusText(status);
+    ui->edtPrinterResult->setText(text);
+}
+
