@@ -71,11 +71,11 @@ INCLUDEPATH += $$PWD/libs/arm64-v8a/
 
 ANDROID_EXTRA_LIBS += $$PWD/libs/arm64-v8a/liboposcalessdk.so
 ANDROID_LIB_DEPENDENCIES += $$PWD/libs/arm64-v8a/liboposcalessdk.so \
-ANDROID_BUNDLED_JAR_DEPENDENCIES += $$PWD/libs/opoandroidsdk_v2.016.jar
+#ANDROID_BUNDLED_JAR_DEPENDENCIES += $$PWD/libs/opoandroidsdk_v2.016.jar
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD
 
-INCLUDEPATH += $$PWD/libs/opoandroidsdk_v2.016.jar
-DEPENDPATH += $$PWD/libs/opoandroidsdk_v2.016.jar
+#INCLUDEPATH += $$PWD/libs/opoandroidsdk_v2.017.jar
+#DEPENDPATH += $$PWD/libs/opoandroidsdk_v2.017.jar
 INCLUDEPATH += $$PWD/oposdk
 INCLUDEPATH += $$PWD/oposdk/cpp
 

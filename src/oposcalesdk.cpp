@@ -92,8 +92,8 @@ int OpoScaleSDK::loadlib()
         }
         qDebug() << "Library liboposcalessdk.so load succeeded";
 
-        opoClose = (OPO_Close)resolve("OPO_Close");
         opoOpen = (OPO_Open)resolve("OPO_Open");
+        opoClose = (OPO_Close)resolve("OPO_Close");
         opoExitTare = (OPO_ExitTare)resolve("OPO_ExitTare");
         opoGetResult = (OPO_GetResult)resolve("OPO_GetResult");
         opoPreTare = (OPO_PreTare)resolve("OPO_PreTare");
@@ -111,18 +111,24 @@ int OpoScaleSDK::loadlib()
     return ENoError;
 }
 
+
+char buffer[256];
+
 int OpoScaleSDK::Open(QString deviceName)
 {
-    qDebug() << "Open(" + deviceName + ")";
+    qDebug() << "Open(" << deviceName << ")";
 
     int rc = loadlib();
     if (isSucceeded(rc))
     {
-        char* s = deviceName.toStdString().data();
-        qDebug() << "Open(" << s << ")";
-        rc = opoOpen(s);
+        std::string str = deviceName.toStdString();
+        std::size_t length = str.copy(buffer, str.length(), 0);
+        buffer[length]='\0';
+        //char* s = deviceName.toStdString().data();
+        //qDebug() << "Open(" << buffer << ")";
+        rc = opoOpen(buffer);
     }
-    qDebug() << "Open(" + deviceName + ")=" << rc;
+    qDebug() << "Open(" << deviceName << ")=" << rc;
     return rc;
 }
 
@@ -143,17 +149,15 @@ int OpoScaleSDK::GetResult(QString& result)
     int rc = loadlib();
     if (isSucceeded(rc))
     {
-        char buffer[256];
+        char buffer[100];
         rc = opoGetResult(buffer);
         if (isSucceeded(rc))
         {
-            //QByteArray array(buffer, 256);
-            //qDebug() << "GetResult()=" << QString(array.toHex());
             result = QString(buffer);
             weight = WeightData::parse(result);
         }
     }
-    qDebug() << "GetResult()=" << rc << ", " << result;
+    qDebug() << "GetResult()=" << rc << "," << result;
     return rc;
 }
 
@@ -162,16 +166,14 @@ int OpoScaleSDK::ReadResultCache(QString& result)
     qDebug() << "ReadResultCache()";
     int rc = loadlib();
     if (isSucceeded(rc)){
-        char buffer[256];
+        char buffer[100];
         rc = opoReadResultCache(buffer);
         if (isSucceeded(rc))
         {
-            //QByteArray array(buffer, 256);
-            //qDebug() << "ReadResultCache()=" << QString(array.toHex());
             result = QString(buffer);
         }
     }
-    qDebug() << "ReadResultCache()=" << rc << ", " << result;
+    qDebug() << "ReadResultCache()=" << rc << "," << result;
     return rc;
 }
 
