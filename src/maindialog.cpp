@@ -1,6 +1,9 @@
 #include "maindialog.h"
 #include "ui_maindialog.h"
 #include <QMessageBox>
+#include <QJniObject>
+#include <QJniEnvironment>
+
 #include "weightdata.h"
 #include "OnePlusOneAndroidSDK\ScalesOS\weight_info.hpp"
 #include "OnePlusOneAndroidSDK\ScalesOS\scales_s_d_k.hpp"
@@ -22,10 +25,21 @@ MainDialog::~MainDialog()
     delete ui;
 }
 
+jobject getGlobalContext()
+{
+    QJniEnvironment env;
+    jclass activityThread = env.jniEnv()->FindClass("android/app/ActivityThread");
+    jmethodID currentActivityThread = env.jniEnv()->GetStaticMethodID(activityThread, "currentActivityThread", "()Landroid/app/ActivityThread;");
+    jobject activityThreadObj = env.jniEnv()->CallStaticObjectMethod(activityThread, currentActivityThread);
+    jmethodID getApplication = env.jniEnv()->GetMethodID(activityThread, "getApplication", "()Landroid/app/Application;");
+    jobject context = env.jniEnv()->CallObjectMethod(activityThreadObj, getApplication);
+    return context;
+}
+
 ::OnePlusOneAndroidSDK::Printer::LabelPrinter* MainDialog::getPrinter(){
     if (printer == nullptr)
     {
-        const android::content::Context context(sdk.getGlobalContext());
+        const android::content::Context context(getGlobalContext());
         printer = &::OnePlusOneAndroidSDK::Printer::LabelPrinter::getInstance(context);
     }
     return printer;
@@ -40,15 +54,11 @@ void MainDialog::on_btnOpen_clicked()
     {
         qDebug() << "File open succeeded";
         ui->edtResult->setText("OK");
+        //sdk.SetAutoMode();
     } else{
         qDebug() << "File open failed";
         ui->edtResult->setText("Failed");
     }
-    sdk.setScaleAlwaysRead();
-}
-
-void MainDialog::weightChanged(const ::OnePlusOneAndroidSDK::ScalesOS::WeightInfo* weightInfo){
-
 }
 
 void MainDialog::on_btnClose_clicked()
@@ -62,8 +72,11 @@ void MainDialog::on_btnClose_clicked()
 void MainDialog::on_btnReadWeight_clicked()
 {
     ui->edtResult->clear();
-    QString rc = sdk.GetResult();
-    ui->edtResult->setText(rc);
+    QString result= "";
+    int rc = sdk.ReadResultCache(result);
+    rc = sdk.GetResult(result);
+    ui->edtResult->setText(sdk.getErrorMessage(rc));
+
     WeightData weight = sdk.getWeight();
     ui->lblNetWeight->setText("Net weight: " + weight.getNetWeight());
     ui->lblTareWeight->setText("Tare weight: " + weight.getTareWeight());
@@ -142,6 +155,7 @@ jobject getBitmap(QString fileName)
     }
     jobject bitmap = env.jniEnv()->CallStaticObjectMethod(BitmapFactoryClass, methodID,
         QJniObject::fromString(fileName).object<jstring>());
+    return bitmap;
 }
 
 void MainDialog::on_btnPrinterPrintLabel_clicked()

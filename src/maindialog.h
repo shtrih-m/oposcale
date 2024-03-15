@@ -35,8 +35,6 @@ private slots:
 
     void on_btnExitTare_clicked();
 
-    void weightChanged(const ::OnePlusOneAndroidSDK::ScalesOS::WeightInfo* weightInfo);
-
     void on_btnPrinterOpen_clicked();
 
     void on_btnPrinterClose_clicked();
