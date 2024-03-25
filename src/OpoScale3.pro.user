@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 12.0.1, 2024-03-15T18:23:22. -->
+<!-- Written by QtCreator 12.0.1, 2024-03-21T20:11:30. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -116,8 +116,8 @@
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.AndroidPackageInstallationStep</value>
      </valuemap>
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.3">
-      <value type="QString" key="BuildTargetSdk">android-33</value>
-      <value type="QString" key="BuildToolsVersion"></value>
+      <value type="QString" key="BuildTargetSdk">android-32</value>
+      <value type="QString" key="BuildToolsVersion">32.1.0</value>
       <value type="QString" key="KeystoreLocation"></value>
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Build Android APK</value>
@@ -278,7 +278,7 @@
      <value type="QString">armeabi-v7a</value>
      <value type="QString">armeabi</value>
     </valuelist>
-    <value type="QString" key="AndroidDeviceSerialNumber">192.168.1.105:45237</value>
+    <value type="QString" key="AndroidDeviceSerialNumber">192.168.1.105:33343</value>
     <value type="int" key="AndroidVersion.ApiLevel">32</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.0">

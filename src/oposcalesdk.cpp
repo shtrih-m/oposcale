@@ -8,6 +8,10 @@
 OpoScaleSDK::OpoScaleSDK(QObject *parent)
     : QObject{parent}
 {}
+OpoScaleSDK::~OpoScaleSDK()
+{
+    unloadlib();
+}
 
 WeightData OpoScaleSDK::getWeight(){
     return weight;
@@ -72,7 +76,7 @@ bool OpoScaleSDK::isSucceeded(int rc){
 
 QFunctionPointer OpoScaleSDK::resolve(const char *symbol){
     QFunctionPointer rc = lib.resolve(symbol);
-    if (rc) {
+    if (rc != nullptr) {
         qDebug() << "Resolve succeeded for "  << symbol;
     } else{
         qDebug() << "Resolve failed for " << symbol;
@@ -111,6 +115,29 @@ int OpoScaleSDK::loadlib()
     return ENoError;
 }
 
+int OpoScaleSDK::unloadlib()
+{
+    qDebug() << "unloadlib()";
+    if (lib.isLoaded())
+    {
+        lib.unload();
+        opoOpen = nullptr;
+        opoClose = nullptr;
+        opoExitTare = nullptr;
+        opoGetResult = nullptr;
+        opoPreTare = nullptr;
+        opoTare = nullptr;
+        opoZero = nullptr;
+        opoPowOnZero = nullptr;
+        opoReadResultCache = nullptr;
+        opoSendFre = nullptr;
+        opoSetAutoMode = nullptr;
+        opoSetModuleCallBack = nullptr;
+        opoSetUnit = nullptr;
+    }
+    qDebug() << "unloadlib(): OK";
+    return ENoError;
+}
 
 char buffer[256];
 

@@ -48,9 +48,12 @@ private:
     OPO_ExitTare opoExitTare;
 
     int loadlib();
+    int unloadlib();
     QFunctionPointer resolve(const char *symbol);
 public:
     explicit OpoScaleSDK(QObject *parent = nullptr);
+    ~OpoScaleSDK();
+
 
     int Open(QString deviceName);
     int Close();
