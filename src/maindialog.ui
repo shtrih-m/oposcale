@@ -335,7 +335,7 @@
      <property name="geometry">
       <rect>
        <x>410</x>
-       <y>130</y>
+       <y>170</y>
        <width>101</width>
        <height>31</height>
       </rect>
@@ -362,8 +362,8 @@
       <rect>
        <x>10</x>
        <y>50</y>
-       <width>171</width>
-       <height>131</height>
+       <width>391</width>
+       <height>241</height>
       </rect>
      </property>
      <property name="text">
@@ -371,6 +371,19 @@
      </property>
      <property name="pixmap">
       <pixmap>res/Globus.bmp</pixmap>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnOpenImage">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>130</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Open image...</string>
      </property>
     </widget>
    </widget>

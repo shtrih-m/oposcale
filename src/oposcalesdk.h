@@ -2,78 +2,61 @@
 #define OPOSCALESDK_H
 
 #include <QObject>
-#include <QLibrary>
+#include <QJniObject>
+#include "OnePlusOneAndroidSDK\ScalesOS\scales_s_d_k.hpp"
 #include "weightdata.h"
 
-
-const int ENoError          = 0;
-const int ENoError2          = 1;
-const int ELibNotLoaded     = -1;
-
-typedef void(__stdcall *OPO_SetModuleCallBack)(void *CallBack);
-typedef int(__stdcall *OPO_Close)(void);
-typedef int(__stdcall *OPO_SetAutoMode)(void);
-typedef int(__stdcall *OPO_Open)(const char* Connect);
-typedef int(__stdcall *OPO_GetResult)(char str[]);
-typedef int(__stdcall *OPO_ReadResultCache)(char str[]);
-typedef int(__stdcall *OPO_SendFre)(int Value);
-typedef int(__stdcall *OPO_Zero)(void);
-typedef int(__stdcall *OPO_Tare)(void);
-typedef int(__stdcall *OPO_PreTare)(int Value);
-typedef int(__stdcall *OPO_SetUnit)(int Value);
-typedef int(__stdcall *OPO_PowOnZero)(void);
-typedef int(__stdcall *OPO_ExitTare)(void);
+const int ENoError              = 0;
+const int EClassNotFound        = -1;
+const int EMethodNotFound       = -2;
+const int EMethodCallFailed     = -3;
+const int EContextIsNull        = -4;
+const int ESDKInstanceIsNull    = -5;
+const int EOpenFailed           = -6;
+// Device errors
+const int EIllegalCommandData   = 32768; // 0x8000
+const int EUnstableWeight       = 33024; // 0x8100
+const int EADOverflow           = 33280; // 0x8200
+const int ETareMode             = 33536; // 0x8300
+const int ENoPowerOnZero        = 33792; // 0x8400
+const int EPresetTareMode       = 34048; // 0x8500
+const int EAntiCheatOff         = 34304; // 0x8600
+const int EInvalidCommand       = 65024; // 0xFE00
 
 
 class OpoScaleSDK : public QObject
 {
     Q_OBJECT
 private:
-    QLibrary lib;
     WeightData weight;
-    QString m_deviceName;
-
-    OPO_Open opoOpen;
-    OPO_Close opoClose;
-    OPO_GetResult opoGetResult;
-    OPO_PowOnZero opoPowOnZero;
-    OPO_PreTare opoPreTare;
-    OPO_ReadResultCache opoReadResultCache;
-    OPO_SendFre opoSendFre;
-    OPO_SetAutoMode opoSetAutoMode;
-    OPO_SetModuleCallBack opoSetModuleCallBack;
-    OPO_SetUnit opoSetUnit;
-    OPO_Tare opoTare;
-    OPO_Zero opoZero;
-    OPO_ExitTare opoExitTare;
-
-    int loadlib();
-    int unloadlib();
-    QFunctionPointer resolve(const char *symbol);
+    QJniEnvironment env;
+    jobject gcontext = nullptr;
+    OnePlusOneAndroidSDK::ScalesOS::WeightInfo* weightInfo;
+    OnePlusOneAndroidSDK::ScalesOS::ScalesSDK* sdk = nullptr;
 public:
     explicit OpoScaleSDK(QObject *parent = nullptr);
-    ~OpoScaleSDK();
 
+    jobject getGlobalContext();
+    jobject getFile(QString deviceName);
+    OnePlusOneAndroidSDK::ScalesOS::ScalesSDK* getsdk();
 
-    int Open(QString deviceName);
-    int Close();
-    int ReadResultCache(QString& result);
-    int GetResult(QString& result);
-    int Zero();
-    int Tare();
-    int PreTare(int value);
-    int ExitTare();
-    int SetAutoMode();
-    int SendFre(int value);
-    int SetUnit(int value);
-    int PowOnZero();
-    int SetModuleCallBack(void *CallBack);
+    WeightData getWeight();
 
     bool isFailed(int rc);
     bool isSucceeded(int rc);
     QString getErrorMessage(int rc);
-    WeightData getWeight();
-
+    void setWeightChangedListener(const ::OnePlusOneAndroidSDK::ScalesOS::ScalesSDK::WeightChangedListener& arg1);
+    void setScaleAlwaysRead();
+    bool Open(QString deviceName);
+    ::OnePlusOneAndroidSDK::ScalesOS::WeightInfo* getWeihtInfo();
+    void ReadThread(bool arg1);
+    QString OPOModuleSend(int32_t arg1, int32_t arg2, int8_t arg3, int32_t arg4);
+    int32_t Close();
+    QString GetResult();
+    int32_t Zero();
+    int32_t Tare();
+    int32_t PreTare(int32_t arg1);
+    int32_t ExitTare();
 signals:
 };
 

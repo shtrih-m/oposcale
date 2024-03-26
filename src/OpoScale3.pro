@@ -14,6 +14,7 @@ CONFIG += debug
 SOURCES += \
     main.cpp \
     maindialog.cpp \
+    opolabelprinter.cpp \
     oposcalesdk.cpp \
     oposdk/cpp/OnePlusOneAndroidSDK/Printer/label_printer.cpp \
     oposdk/cpp/OnePlusOneAndroidSDK/Printer/pos_printer.cpp \
@@ -34,6 +35,7 @@ SOURCES += \
 
 HEADERS += \
     maindialog.h \
+    opolabelprinter.h \
     oposcalesdk.h \
     oposdk/cpp/OnePlusOneAndroidSDK/Printer/label_printer.hpp \
     oposdk/cpp/OnePlusOneAndroidSDK/Printer/pos_printer.hpp \
@@ -71,11 +73,11 @@ INCLUDEPATH += $$PWD/libs/arm64-v8a/
 
 ANDROID_EXTRA_LIBS += $$PWD/libs/arm64-v8a/liboposcalessdk.so
 ANDROID_LIB_DEPENDENCIES += $$PWD/libs/arm64-v8a/liboposcalessdk.so \
-#ANDROID_BUNDLED_JAR_DEPENDENCIES += $$PWD/libs/opoandroidsdk_v2.016.jar
+ANDROID_BUNDLED_JAR_DEPENDENCIES += $$PWD/libs/opoandroidsdk_v2.016.jar
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD
 
-#INCLUDEPATH += $$PWD/libs/opoandroidsdk_v2.017.jar
-#DEPENDPATH += $$PWD/libs/opoandroidsdk_v2.017.jar
+INCLUDEPATH += $$PWD/libs/opoandroidsdk_v2.017.jar
+DEPENDPATH += $$PWD/libs/opoandroidsdk_v2.017.jar
 INCLUDEPATH += $$PWD/oposdk
 INCLUDEPATH += $$PWD/oposdk/cpp
 

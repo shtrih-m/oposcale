@@ -1,20 +1,28 @@
-#include "oposcalesdk.h"
+#include "OpoScaleSDK.h"
 
-#include <QLibrary>
 #include <QDebug>
-#include <QMessageLogger>
+#include <QJniObject>
+#include "OnePlusOneAndroidSDK\ScalesOS\scales_s_d_k.hpp"
 #include "weightdata.h"
+
 
 OpoScaleSDK::OpoScaleSDK(QObject *parent)
     : QObject{parent}
-{}
-OpoScaleSDK::~OpoScaleSDK()
 {
-    unloadlib();
+    gcontext = getGlobalContext();
+    gni::GniCore::Init(env.javaVM(), gcontext);
 }
 
-WeightData OpoScaleSDK::getWeight(){
-    return weight;
+OnePlusOneAndroidSDK::ScalesOS::ScalesSDK* OpoScaleSDK::getsdk()
+{
+    if (sdk == nullptr)
+    {
+        qDebug() << "getsdk";
+        const android::content::Context context(gcontext);
+        sdk = &OnePlusOneAndroidSDK::ScalesOS::ScalesSDK::getInstance(context);
+        qDebug() << "getsdk: OK";
+    }
+    return sdk;
 }
 
 QString OpoScaleSDK::getErrorMessage(int rc)
@@ -22,285 +30,183 @@ QString OpoScaleSDK::getErrorMessage(int rc)
     QString result = "Unknown error";
     switch(rc)
     {
-    case ENoError:
-    case ENoError2:
-        result = "No error";
-        break;
+        case 0:
+        case 1:
+            result = "No error";
+            break;
 
-    case ELibNotLoaded:
-        result = "Lib not found";
-        break;
+        case 32768:
+            result = "Command data not in legal range";
+            break;
 
-    case 32768:
-        result = "Command data not in legal range";
-        break;
+        case 33024:
+            result = "Unstable weight";
+            break;
 
-    case 33024:
-        result = "Unstable weight";
-        break;
+        case 33280:
+            result = "AD value overflow";
+            break;
 
-    case 33280:
-        result = "AD value overflow";
-        break;
+        case 33536:
+            result = "Currently in tare mode";
+            break;
 
-    case 33536:
-        result = "Currently in tare mode";
-        break;
+        case 33792:
+            result = "No power-on zero";
+            break;
 
-    case 33792:
-        result = "No power-on zero";
-        break;
+        case 34048:
+            result = "Currently in preset tare mode";
+            break;
 
-    case 34048:
-        result = "Currently in preset tare mode";
-        break;
+        case 34304:
+            result = "Anti-cheat is not turned on, cannot be set";
+            break;
 
-    case 34304:
-        result = "Anti-cheat is not turned on, cannot be set";
-        break;
-
-    case 65024:
-        result = "Erroneous command";
-        break;
+        case 65024:
+            result = "Erroneous command";
+            break;
     }
     return QString("%1, %2").arg(QString::number(rc), result);
 }
 
 bool OpoScaleSDK::isFailed(int rc){
-    return (!isSucceeded(rc));
+    return rc != 0;
 }
 
 bool OpoScaleSDK::isSucceeded(int rc){
-    return (rc == ENoError)||(rc == ENoError2);
+    return rc == 0;
 }
 
-QFunctionPointer OpoScaleSDK::resolve(const char *symbol){
-    QFunctionPointer rc = lib.resolve(symbol);
-    if (rc != nullptr) {
-        qDebug() << "Resolve succeeded for "  << symbol;
-    } else{
-        qDebug() << "Resolve failed for " << symbol;
-    }
-    return rc;
-}
-
-int OpoScaleSDK::loadlib()
+jobject OpoScaleSDK::getGlobalContext()
 {
-    if (!lib.isLoaded())
-    {
-        qDebug() << "loadlib()";
-        lib.setFileName("liboposcalessdk.so");
-        if (!lib.load()){
-            qDebug() << "Library liboposcalessdk.so load failed";
-            return ELibNotLoaded;
-        }
-        qDebug() << "Library liboposcalessdk.so load succeeded";
-
-        opoOpen = (OPO_Open)resolve("OPO_Open");
-        opoClose = (OPO_Close)resolve("OPO_Close");
-        opoExitTare = (OPO_ExitTare)resolve("OPO_ExitTare");
-        opoGetResult = (OPO_GetResult)resolve("OPO_GetResult");
-        opoPreTare = (OPO_PreTare)resolve("OPO_PreTare");
-        opoTare = (OPO_Tare)resolve("OPO_Tare");
-        opoZero = (OPO_Zero) resolve("OPO_Zero");
-        opoPowOnZero = (OPO_PowOnZero)resolve("OPO_PowOnZero");
-        opoReadResultCache = (OPO_ReadResultCache) resolve("OPO_ReadResultCache");
-        opoSendFre = (OPO_SendFre)resolve("OPO_SendFre");
-        opoSetAutoMode = (OPO_SetAutoMode) resolve("OPO_SetAutoMode");
-        opoSetModuleCallBack = (OPO_SetModuleCallBack)resolve("OPO_SetModuleCallBack");
-        opoSetUnit = (OPO_SetUnit)resolve("OPO_SetUnit");
-
-        qDebug() << "loadlib(): OK";
-    }
-    return ENoError;
+    QJniEnvironment env;
+    jclass activityThread = env.jniEnv()->FindClass("android/app/ActivityThread");
+    jmethodID currentActivityThread = env.jniEnv()->GetStaticMethodID(activityThread, "currentActivityThread", "()Landroid/app/ActivityThread;");
+    jobject activityThreadObj = env.jniEnv()->CallStaticObjectMethod(activityThread, currentActivityThread);
+    jmethodID getApplication = env.jniEnv()->GetMethodID(activityThread, "getApplication", "()Landroid/app/Application;");
+    jobject context = env.jniEnv()->CallObjectMethod(activityThreadObj, getApplication);
+    return context;
 }
 
-int OpoScaleSDK::unloadlib()
+void OpoScaleSDK::setWeightChangedListener(const ::OnePlusOneAndroidSDK::ScalesOS::ScalesSDK::WeightChangedListener& arg1)
 {
-    qDebug() << "unloadlib()";
-    if (lib.isLoaded())
-    {
-        lib.unload();
-        opoOpen = nullptr;
-        opoClose = nullptr;
-        opoExitTare = nullptr;
-        opoGetResult = nullptr;
-        opoPreTare = nullptr;
-        opoTare = nullptr;
-        opoZero = nullptr;
-        opoPowOnZero = nullptr;
-        opoReadResultCache = nullptr;
-        opoSendFre = nullptr;
-        opoSetAutoMode = nullptr;
-        opoSetModuleCallBack = nullptr;
-        opoSetUnit = nullptr;
-    }
-    qDebug() << "unloadlib(): OK";
-    return ENoError;
+    qDebug() << "setWeightChangedListener";
+    getsdk()->setWeightChangedListener(arg1);
+    qDebug() << "setWeightChangedListener: OK";
 }
 
-char buffer[256];
-
-int OpoScaleSDK::Open(QString deviceName)
+void OpoScaleSDK::setScaleAlwaysRead()
 {
-    qDebug() << "Open(" << deviceName << ")";
-
-    int rc = loadlib();
-    if (isSucceeded(rc))
-    {
-        std::string str = deviceName.toStdString();
-        std::size_t length = str.copy(buffer, str.length(), 0);
-        buffer[length]='\0';
-        //char* s = deviceName.toStdString().data();
-        //qDebug() << "Open(" << buffer << ")";
-        rc = opoOpen(buffer);
-    }
-    qDebug() << "Open(" << deviceName << ")=" << rc;
-    return rc;
+    qDebug() << "setScaleAlwaysRead";
+    getsdk()->setScaleAlwaysRead();
+    qDebug() << "setScaleAlwaysRead: OK";
 }
 
-int OpoScaleSDK::SetAutoMode()
+jobject OpoScaleSDK::getFile(QString deviceName)
 {
-    qDebug() << "SetAutoMode()";
-    int rc = loadlib();
-    if (isSucceeded(rc)) {
-        rc = opoSetAutoMode();
+    qDebug() << "getFile";
+    jclass fileclass = env.jniEnv()->FindClass("java/io/File");
+    if (fileclass == nullptr){
+        qDebug() << "File class not found";
+        return nullptr;
     }
-    qDebug() << "SetAutoMode()=" << rc;
-    return rc;
+    jmethodID methodID = env.jniEnv()->GetMethodID(fileclass, "<init>", "(Ljava/lang/String;)V");
+    if (methodID == nullptr){
+        qDebug() << "File constructor not found";
+        return nullptr;
+    }
+
+    jobject file = env.jniEnv()->NewObject(fileclass, methodID,
+        QJniObject::fromString(deviceName).object<jstring>());
+    if (file == nullptr){
+        qDebug() << "File creation failed";
+        return file;
+    }
+    return file;
 }
 
-int OpoScaleSDK::GetResult(QString& result)
+bool OpoScaleSDK::Open(QString deviceName)
 {
-    qDebug() << "GetResult()";
-    int rc = loadlib();
-    if (isSucceeded(rc))
-    {
-        char buffer[100];
-        rc = opoGetResult(buffer);
-        if (isSucceeded(rc))
-        {
-            result = QString(buffer);
-            weight = WeightData::parse(result);
-        }
-    }
-    qDebug() << "GetResult()=" << rc << "," << result;
+    qDebug() << "OpoScaleSDK::Open(" << deviceName << ")";
+    java::io::File file(getFile(deviceName));
+    bool rc = getsdk()->Open(file);
+    qDebug() << "OpoScaleSDK::Open(" << deviceName << ")= " << rc;
     return rc;
 }
 
-int OpoScaleSDK::ReadResultCache(QString& result)
+::OnePlusOneAndroidSDK::ScalesOS::WeightInfo* OpoScaleSDK::getWeihtInfo()
 {
-    qDebug() << "ReadResultCache()";
-    int rc = loadlib();
-    if (isSucceeded(rc)){
-        char buffer[100];
-        rc = opoReadResultCache(buffer);
-        if (isSucceeded(rc))
-        {
-            result = QString(buffer);
-        }
-    }
-    qDebug() << "ReadResultCache()=" << rc << "," << result;
-    return rc;
+    qDebug() << "OpoScaleSDK::getWeihtInfo";
+    weightInfo = &getsdk()->getWeihtInfo();
+    qDebug() << "OpoScaleSDK::getWeihtInfo: OK";
+    return weightInfo;
 }
 
-int OpoScaleSDK::Close()
+void OpoScaleSDK::ReadThread(bool arg1)
 {
-    qDebug() << "Close()";
-    int rc = loadlib();
-    if (isSucceeded(rc))
-    {
-        rc = opoClose();
-    }
-    qDebug() << "Close()=" << rc;
-    return rc;
+    qDebug() << "OpoScaleSDK::ReadThread";
+    getsdk()->ReadThread(arg1);
+    qDebug() << "OpoScaleSDK::ReadThread: OK";
 }
 
-int OpoScaleSDK::Zero(){
-    qDebug() << "Zero()";
-    int rc = loadlib();
-    if (isSucceeded(rc)){
-        rc = opoZero();
-    }
-    qDebug() << "Zero()=" << rc;
-    return rc;
-}
-
-int OpoScaleSDK::Tare(){
-    qDebug() << "Tare()";
-    int rc = loadlib();
-    if (isSucceeded(rc)){
-        rc = opoTare();
-    }
-    qDebug() << "Tare()=" << rc;
-    return rc;
-}
-
-int OpoScaleSDK::PreTare(int value)
+QString OpoScaleSDK::OPOModuleSend(int32_t arg1, int32_t arg2, int8_t arg3, int32_t arg4)
 {
-    qDebug() << "PreTare(" << value << ")";
-    int rc = loadlib();
-    if (isSucceeded(rc)){
-        rc = opoPreTare(value);
-    }
-    qDebug() << "PreTare(" << value << ")=" << rc;
+    qDebug() << "OpoScaleSDK::OPOModuleSend";
+    QJniObject rc(getsdk()->OPOModuleSend(arg1, arg2, arg3, arg4).GetImpl());
+    qDebug() << "OpoScaleSDK::OPOModuleSend=" << rc.toString();
+    return rc.toString();
+}
+
+int32_t OpoScaleSDK::Close(){
+    qDebug() << "OpoScaleSDK::Close";
+    int32_t rc = getsdk()->Close();
+    qDebug() << "OpoScaleSDK::Close: " << rc;
     return rc;
 }
 
-int OpoScaleSDK::ExitTare()
+QString OpoScaleSDK::GetResult()
 {
-    qDebug() << "ExitTare()";
-    int rc = loadlib();
-    if (isSucceeded(rc))
-    {
-        rc = opoExitTare();
-    }
-    qDebug() << "ExitTare()=" << rc;
-    return rc;
+    qDebug() << "OpoScaleSDK::GetResult";
+    QJniObject rc(getsdk()->GetResult().GetImpl());
+    weight = WeightData::parse(rc.toString());
+    qDebug() << "OpoScaleSDK::GetResult: " << rc.toString();
+    return rc.toString();
 }
 
-int OpoScaleSDK::SendFre(int value){
-    qDebug() << "SendFre(" << value << ")";
-    int rc = loadlib();
-    if (isSucceeded(rc))
-    {
-        rc = opoSendFre(value);
-    }
-    qDebug() << "SendFre(" << value << ")=" << rc;
-    return rc;
+WeightData OpoScaleSDK::getWeight(){
+    return weight;
 }
 
-int OpoScaleSDK::SetUnit(int value){
-    qDebug() << "SetUnit(" << value << ")";
-    int rc = loadlib();
-    if (isSucceeded(rc))
-    {
-        rc = opoSetUnit(value);
-    }
-    qDebug() << "SetUnit(" << value << ")=" << rc;
-    return rc;
-}
-
-int OpoScaleSDK::PowOnZero()
+int32_t OpoScaleSDK::Zero()
 {
-    qDebug() << "PowOnZero";
-    int rc = loadlib();
-    if (isSucceeded(rc))
-    {
-        rc = opoPowOnZero();
-    }
-    qDebug() << "PowOnZero()=" << rc;
+    qDebug() << "OpoScaleSDK::Zero";
+    int32_t rc = getsdk()->Zero();
+    qDebug() << "OpoScaleSDK::Zero=" << rc;
     return rc;
 }
 
-int OpoScaleSDK::SetModuleCallBack(void *CallBack){
-    qDebug() << "SetModuleCallBack";
-    int rc = loadlib();
-    if (isSucceeded(rc))
-    {
-        opoSetModuleCallBack(CallBack);
-    }
-    qDebug() << "SetModuleCallBack()=" << rc;
+int32_t OpoScaleSDK::Tare()
+{
+    qDebug() << "OpoScaleSDK::Tare";
+    int32_t rc = getsdk()->Tare();
+    qDebug() << "OpoScaleSDK::Tare=" << rc;
+    return rc;
+}
+
+int32_t OpoScaleSDK::PreTare(int32_t arg1)
+{
+    qDebug() << "OpoScaleSDK::PreTare(" << arg1 << ")";
+    int32_t rc = getsdk()->PreTare(arg1);
+    qDebug() << "OpoScaleSDK::PreTare=" << rc;
+    return rc;
+}
+
+int32_t OpoScaleSDK::ExitTare()
+{
+    qDebug() << "OpoScaleSDK::ExitTare";
+    int32_t rc = getsdk()->ExitTare();
+    qDebug() << "OpoScaleSDK::ExitTare=" << rc;
     return rc;
 }
 
