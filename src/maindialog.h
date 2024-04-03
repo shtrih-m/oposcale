@@ -45,6 +45,8 @@ private slots:
 
     void on_lblResult_3_linkActivated(const QString &link);
 
+    void on_btnOpenImage_clicked();
+
 private:
     OpoScaleSDK scale;
     OpoLabelPrinter printer;

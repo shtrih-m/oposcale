@@ -1,8 +1,9 @@
 <RCC>
-    <qresource prefix="/new/prefix1">
+    <qresource prefix="/images">
         <file>res/Adidas.bmp</file>
         <file>res/gk_logo.bmp</file>
         <file>res/Globus.bmp</file>
         <file>res/Karusel.bmp</file>
+        <file>res/Label.jpg</file>
     </qresource>
 </RCC>

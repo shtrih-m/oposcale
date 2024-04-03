@@ -1,8 +1,8 @@
 #include <QDebug>
 #include <QBitmap>
 #include <QJniObject>
-
-#include <QJniObject>
+#include <QIODevice>
+#include <QBuffer>
 
 #include "opolabelprinter.h"
 #include "OnePlusOneAndroidSDK\Printer\label_printer.hpp"
@@ -35,6 +35,33 @@ jobject getBitmap(QString fileName)
     }
     jobject bitmap = env.jniEnv()->CallStaticObjectMethod(BitmapFactoryClass, methodID,
                                                           QJniObject::fromString(fileName).object<jstring>());
+    return bitmap;
+}
+
+jbyteArray getByteArray(QByteArray buf)
+{
+    QJniEnvironment env;
+    jbyteArray array = env.jniEnv()->NewByteArray(buf.length());
+    env.jniEnv()->SetByteArrayRegion (array, 0, buf.length(), reinterpret_cast<jbyte*>(buf.data()));
+    return array;
+}
+
+jobject getBitmap(QByteArray data)
+{
+    qDebug() << "getBitmap";
+    QJniEnvironment env;
+    jclass BitmapFactoryClass = env.jniEnv()->FindClass("android/graphics/BitmapFactory");
+    if (BitmapFactoryClass == nullptr){
+        qDebug() << "BitmapFactory class not found";
+        return nullptr;
+    }
+    jmethodID methodID = env.jniEnv()->GetStaticMethodID(BitmapFactoryClass, "decodeByteArray", "([BII)Landroid/graphics/Bitmap;");
+    if (methodID == nullptr){
+        qDebug() << "BitmapFactory method decodeByteArray not found";
+        return nullptr;
+    }
+    jbyteArray jdata = getByteArray(data);
+    jobject bitmap = env.jniEnv()->CallStaticObjectMethod(BitmapFactoryClass, methodID, jdata, 0, data.length());
     return bitmap;
 }
 
@@ -144,8 +171,11 @@ int32_t OpoLabelPrinter::GetStatus()
 bool OpoLabelPrinter::PrintLabelBitmap(QBitmap bitmap)
 {
     qDebug() << "OpoLabelPrinter::PrintLabelBitmap()";
-    //jobject jbitmap = getBitmap(fileName);
-    jobject jbitmap;
+    QByteArray bArray;
+    QBuffer buffer(&bArray);
+    buffer.open(QIODevice::WriteOnly);
+    bitmap.save(&buffer, "BMP");
+    jobject jbitmap = getBitmap(bArray);
     ::android::graphics::Bitmap abitmap(jbitmap);
     bool rc = getPrinter()->PrintLabelBitmap(abitmap);
     qDebug() << "OpoLabelPrinter::PrintLabelBitmap()=" << rc;

@@ -4,6 +4,15 @@
 #include <QJniObject>
 #include <QBitmap>
 #include <QJniEnvironment>
+#include <QFileDialog>
+#include <QImageReader>
+#include <QImageWriter>
+#include <QDir>
+#include <QStringList>
+#include <QByteArrayList>
+#include <QByteArray>
+#include <QStandardPaths>
+
 
 #include "weightdata.h"
 #include "OnePlusOneAndroidSDK\ScalesOS\weight_info.hpp"
@@ -19,6 +28,9 @@ MainDialog::MainDialog(QWidget *parent)
     , ui(new Ui::MainDialog)
 {
     ui->setupUi(this);
+    QImage image(":images/res/Label.jpg");
+    QBitmap bitmap = QBitmap::fromImage(image);
+    ui->lblImage->setPixmap(bitmap);
 }
 
 MainDialog::~MainDialog()
@@ -121,7 +133,8 @@ void MainDialog::on_btnPrinterClose_clicked()
 void MainDialog::on_btnPrinterPrintLabel_clicked()
 {
     ui->edtPrinterResult->clear();
-    QBitmap bitmap;
+    QImage image(":images/res/Label.jpg");
+    QBitmap bitmap = QBitmap::fromImage(image);
     printer.PrintLabelBitmap(bitmap);
 }
 
@@ -137,5 +150,44 @@ void MainDialog::on_btnPrinterGetStatus_clicked()
 void MainDialog::on_lblResult_3_linkActivated(const QString &link)
 {
 
+}
+
+static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)
+{
+    static bool firstDialog = true;
+
+    if (firstDialog) {
+        firstDialog = false;
+        const QStringList picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+        dialog.setDirectory(picturesLocations.isEmpty() ? QDir::currentPath() : picturesLocations.last());
+    }
+
+    QStringList mimeTypeFilters;
+    const QByteArrayList supportedMimeTypes = acceptMode == QFileDialog::AcceptOpen
+                                                  ? QImageReader::supportedMimeTypes() : QImageWriter::supportedMimeTypes();
+    for (const QByteArray &mimeTypeName : supportedMimeTypes)
+        mimeTypeFilters.append(mimeTypeName);
+    mimeTypeFilters.sort();
+    dialog.setMimeTypeFilters(mimeTypeFilters);
+    //dialog.selectMimeTypeFilter("image/jpeg"); !!!
+    dialog.setAcceptMode(acceptMode);
+    if (acceptMode == QFileDialog::AcceptSave)
+        dialog.setDefaultSuffix("jpg");
+}
+
+void MainDialog::on_btnOpenImage_clicked()
+{
+    QFileDialog dialog(this, tr("Open File"));
+    initializeImageFileDialog(dialog, QFileDialog::AcceptOpen);
+    if (dialog.exec() == QDialog::Accepted){
+        QString fileName = dialog.selectedFiles().constFirst();
+        QPicture picture;
+        if (picture.load(fileName)){
+            ui->lblImage->setPicture(picture);
+        } else{
+            QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
+                tr("Cannot load picture %1").arg(QDir::toNativeSeparators(fileName)));
+        }
+    }
 }
 
